@@ -1,0 +1,7 @@
+{
+  "name": "Bachcha Ko AI Voice",
+  "description": "An AI-powered app that converts text-based story scripts into natural-sounding audio. Users can input dialogue, assign unique voices to each speaker, and generate a complete audio narrative, perfect for animators, storytellers, and content creators.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
