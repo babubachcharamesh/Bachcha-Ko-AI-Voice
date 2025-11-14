@@ -1,13 +1,13 @@
-
 import React from 'react';
 import { Speaker } from '../types';
 import { AVAILABLE_VOICES } from '../constants';
-import { PlayIcon, VolumeUpIcon } from './icons';
+import { PlayIcon, VolumeUpIcon, DownloadIcon } from './icons';
 import Loader from './Loader';
 
 interface SpeakerControlProps {
   speaker: Speaker;
   isLoading: boolean;
+  audioUrl: string | null;
   onVoiceChange: (speakerId: string, newVoice: string) => void;
   onPreview: (speakerId: string) => void;
 }
@@ -15,6 +15,7 @@ interface SpeakerControlProps {
 const SpeakerControl: React.FC<SpeakerControlProps> = ({
   speaker,
   isLoading,
+  audioUrl,
   onVoiceChange,
   onPreview,
 }) => {
@@ -51,6 +52,16 @@ const SpeakerControl: React.FC<SpeakerControlProps> = ({
         >
           {isLoading ? <Loader small /> : <PlayIcon className="w-5 h-5" />}
         </button>
+        {audioUrl && !isLoading && (
+            <a
+                href={audioUrl}
+                download={`${speaker.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.wav`}
+                className="p-2 bg-green-600 hover:bg-green-700 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500"
+                aria-label={`Download audio for ${speaker.name}`}
+            >
+                <DownloadIcon className="w-5 h-5" />
+            </a>
+        )}
       </div>
     </div>
   );

@@ -1,15 +1,15 @@
-
 import React from 'react';
-import { Speaker, LoadingStates, SpeakerAudio } from '../types';
+import { Speaker, LoadingStates, SpeakerAudioUrls } from '../types';
 import SpeakerControl from './SpeakerControl';
-import { DownloadIcon, PlayIcon, SparklesIcon } from './icons';
+import { DownloadIcon, SparklesIcon } from './icons';
 import Loader from './Loader';
 
 interface VoiceSettingsProps {
   speakers: Speaker[];
+  speakerAudioUrls: SpeakerAudioUrls;
   loadingStates: LoadingStates;
   isGeneratingFullStory: boolean;
-  fullStoryAudio: SpeakerAudio | null;
+  fullStoryAudioUrl: string | null;
   onVoiceChange: (speakerId: string, newVoice: string) => void;
   onPreviewSpeaker: (speakerId: string) => void;
   onGenerateFullStory: () => void;
@@ -17,9 +17,10 @@ interface VoiceSettingsProps {
 
 const VoiceSettings: React.FC<VoiceSettingsProps> = ({
   speakers,
+  speakerAudioUrls,
   loadingStates,
   isGeneratingFullStory,
-  fullStoryAudio,
+  fullStoryAudioUrl,
   onVoiceChange,
   onPreviewSpeaker,
   onGenerateFullStory,
@@ -32,6 +33,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
             <SpeakerControl
               key={speaker.id}
               speaker={speaker}
+              audioUrl={speakerAudioUrls[speaker.id]}
               isLoading={loadingStates[speaker.id] || false}
               onVoiceChange={onVoiceChange}
               onPreview={onPreviewSpeaker}
@@ -47,16 +49,16 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({
       <div className="mt-6 border-t border-gray-700 pt-6">
         <h3 className="text-xl font-semibold mb-4 text-gray-200">3. Generate & Download</h3>
         
-        {fullStoryAudio?.audioUrl && (
+        {fullStoryAudioUrl && (
           <div className="bg-gray-900 rounded-lg p-4 mb-4 flex items-center justify-between">
             <div>
               <p className="font-semibold text-green-400">Full Story Ready!</p>
               <p className="text-sm text-gray-400">Your audio narrative is complete.</p>
             </div>
             <div className="flex items-center space-x-2">
-              <audio src={fullStoryAudio.audioUrl} controls className="h-10 w-48 custom-audio-player"></audio>
+              <audio src={fullStoryAudioUrl} controls className="h-10 w-48 custom-audio-player"></audio>
                <a
-                href={fullStoryAudio.audioUrl}
+                href={fullStoryAudioUrl}
                 download={`Story_${new Date().toISOString().split('T')[0]}.wav`}
                 className="p-2 bg-green-600 hover:bg-green-700 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500"
                 aria-label="Download Full Story"

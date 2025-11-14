@@ -1,4 +1,3 @@
-
 export interface Speaker {
   id: string;
   name: string;
@@ -6,12 +5,10 @@ export interface Speaker {
   voice: string;
 }
 
-export interface SpeakerAudio {
-  speakerName: string;
-  audioUrl: string | null;
-  isLoading: boolean;
-}
-
 export type LoadingStates = {
   [speakerId: string]: boolean;
+};
+
+export type SpeakerAudioUrls = {
+  [key: string]: string | null;
 };

@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Speaker, LoadingStates, SpeakerAudio } from './types';
-import { AVAILABLE_VOICES, SCRIPT_PLACEHOLDER } from './constants';
+import { Speaker, LoadingStates, SpeakerAudioUrls } from './types';
+import { AVAILABLE_VOICES } from './constants';
 import ScriptInput from './components/ScriptInput';
 import VoiceSettings from './components/VoiceSettings';
 import { generateSingleSpeakerSpeech, generateMultiSpeakerSpeech } from './services/geminiService';
@@ -10,9 +9,10 @@ import { createAudioBlobUrl } from './utils/audioUtils';
 const App: React.FC = () => {
   const [script, setScript] = useState<string>('');
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [speakerAudioUrls, setSpeakerAudioUrls] = useState<SpeakerAudioUrls>({});
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
   const [isGeneratingFullStory, setIsGeneratingFullStory] = useState<boolean>(false);
-  const [fullStoryAudio, setFullStoryAudio] = useState<SpeakerAudio | null>(null);
+  const [fullStoryAudioUrl, setFullStoryAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,6 +67,8 @@ const App: React.FC = () => {
     setSpeakers(prev =>
       prev.map(s => (s.id === speakerId ? { ...s, voice: newVoice } : s))
     );
+    // Invalidate the generated audio for this speaker as the voice has changed
+    setSpeakerAudioUrls(prev => ({ ...prev, [speakerId]: null }));
   };
   
   const playAudio = (url: string) => {
@@ -86,6 +88,7 @@ const App: React.FC = () => {
       const base64Audio = await generateSingleSpeakerSpeech(fullDialogue, speaker.voice);
       if (base64Audio) {
         const url = await createAudioBlobUrl(base64Audio);
+        setSpeakerAudioUrls(prev => ({ ...prev, [speakerId]: url }));
         playAudio(url);
       } else {
         throw new Error('No audio data received.');
@@ -105,14 +108,14 @@ const App: React.FC = () => {
     }
     
     setIsGeneratingFullStory(true);
-    setFullStoryAudio(null);
+    setFullStoryAudioUrl(null);
     setError(null);
 
     try {
       const base64Audio = await generateMultiSpeakerSpeech(speakers);
       if (base64Audio) {
         const url = await createAudioBlobUrl(base64Audio);
-        setFullStoryAudio({ speakerName: 'Full Story', audioUrl: url, isLoading: false });
+        setFullStoryAudioUrl(url);
       } else {
         throw new Error('No audio data received for the full story.');
       }
@@ -154,9 +157,10 @@ const App: React.FC = () => {
             <h2 className="text-2xl font-semibold text-gray-200">2. Voice Settings</h2>
             <VoiceSettings
               speakers={speakers}
+              speakerAudioUrls={speakerAudioUrls}
               loadingStates={loadingStates}
               isGeneratingFullStory={isGeneratingFullStory}
-              fullStoryAudio={fullStoryAudio}
+              fullStoryAudioUrl={fullStoryAudioUrl}
               onVoiceChange={handleVoiceChange}
               onPreviewSpeaker={handlePreviewSpeaker}
               onGenerateFullStory={handleGenerateFullStory}
